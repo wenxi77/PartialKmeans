@@ -10,7 +10,7 @@
 
 
 
-Parcial_km1215 <- function(m,k,initCtrs,nIters){
+Partial_km1215 <- function(m,k,initCtrs,nIters){
   #init variables
   iter <- 0
   nrm <- nrow(m)
