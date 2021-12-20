@@ -1,0 +1,120 @@
+---
+title: "experiment"
+author: "WENXI ZHANG"
+date: "12/18/2021"
+output: html_document
+---
+
+## horse_colic
+```{r}
+library(readr)
+library(dplyr)
+source("R/Partial_km1215.R")
+source("R/partial_km.R")
+source("R/fitted.test.R")
+Colname <- c("surgery","Age","Hospital Number","rectal temperature","pulse","respiratory rate","temperature of extremities","peripheral pulse","mucous membranes","capillary refill time","pain", "peristalsis","abdominal distension","nasogastric tube","nasogastric reflux","nasogastric reflux PH","rectal examination - feces","abdomen","packed cell volume","total protein","abdominocentesis appearance", "abdomcentesis total protein", "outcome", "surgical lesion","type of lesion1","type of lesion2", "type of lesion3","cp_data")
+#setwd("~/Desktop/research/partial_kmeans")
+horse_colic <- read_table2("data/horse-colic.data", 
+    col_names = Colname, na = "?") %>% tibble()
+sapply(horse_colic, FUN = function(x) sum(is.na(x)))
+total_missing_values <- sapply(X = horse_colic, FUN = function(x) sum(is.na(x))) %>% sum()
+
+cat("total missing values percentage",total_missing_values/(nrow(horse_colic)*ncol(horse_colic)))
+horse_colic_test <- read_table2("data/horse-colic.test",col_names = Colname, na = "?") %>% tibble()
+train_x <- horse_colic %>%select(`surgery`:`outcome`) %>% select(-c("Hospital Number"))#,"outcome"))
+train_y <- horse_colic$`surgical lesion`#$`outcome`
+test_x <- horse_colic_test %>%select(`surgery`:`outcome`) %>% select(-"Hospital Number")
+test_y <- horse_colic_test$`surgical lesion`
+
+Continuous_index <- c("rectal temperature","nasogastric reflux PH","packed cell volume","total protein","abdomcentesis total protein")
+Categorical_index <- train_x %>% select(-Continuous_index) %>% colnames()
+Categorical_numindex <- which(train_x %>% colnames() %in% Categorical_index)
+
+
+```
+
+
+### train test on Parcial_km1215
+
+```{r}
+#select rows from complete cases
+complete_rows <- complete.cases(train_x) %>% which()
+initCtrs <- cbind(1.0,1.0,36.5,100.0,24.0,3.0,3.0,3.0,1.0,3.0  ,3.0,3.0,3.0,1.0,5,4.0,4.0,50.0,6.0,3.0,3.4,1.0,train_x[11,])%>%as.numeric()
+  #train_x[sample(complete_rows,4),] %>% unlist() %>% as.numeric()
+fit_train <- Partial_km1215(m=train_x,k=2,initCtrs,nIters=100)
+cat("train accuracy",test_accuraacy(train_y,fit_train$fitted_value))
+fit_train$fitted_Centroid[,Categorical_numindex] <- round(fit_train$fitted_Centroid[,Categorical_numindex], digits = 0)
+
+test_fit <- fitted.test(test_x,2,fit_train$fitted_Centroid)
+fit_test_y <- test_fit$fitted_values
+cat("test accuracy",test_accuraacy(test_y,fit_test_y))
+cat("mse",test_fit$ms_e)
+```
+
+## train test on Parcial_km
+
+```{r}
+fit_train <- Parcial_km(m=train_x,k=2,cbind(1.0,1.0,36.5,100.0,24.0,3.0,3.0,3.0,1.0,3.0  ,3.0,3.0,3.0,1.0,5,4.0,4.0,50.0,6.0,3.0,3.4,1.0,train_x[11,])%>%as.numeric(),nIters=100)
+
+cat("train accuracy",test_accuraacy(train_y,fit_train$fitted_value))
+test_fit <- fitted.test(test_x,2,fit_train$fitted_Centroid)$fitted_values
+cat("test accuracy",test_accuraacy(test_y,test_fit))
+```
+
+## test with penguins 
+
+```{r}
+library(palmerpenguins)
+penguins[,c(2,7:8)]<-apply(penguins[,c(2,7:8)],2,function(x){as.numeric(as.factor(x))})
+fitted_y<-Partial_km1215(m=penguins[,2:8],k=3,initC=cbind(penguins[5,-1],penguins[150,-1],penguins[200,-1])%>%as.numeric(),nIters=100)
+
+actual_y<-penguins$species%>%as.numeric()
+test_accuraacy(actual_y,fitted_y$fitted_value)
+
+```
+
+## Credit Approval Data Set
+
+```{r}
+anneal <- read_csv("data/anneal.data", col_names = FALSE, 
+    na = "?")
+adult_col_names <- c("age","workclass","fnlwgt","education","education-num","marital-status","occupation","relationship","race","sex","capital-gain","capital-loss","hours-per-week","native-country","class")
+adult <- read_csv("data/adult.data", col_names = adult_col_names, 
+    na = "?") %>% select(-"fnlwgt")
+adult_test <- read_csv("data/adult_test.test", col_names = adult_col_names, 
+    na = "?") %>% select(-"fnlwgt")
+total_missing_values <- sapply(X = adult, FUN = function(x) sum(is.na(x))) %>% sum()
+total_missing_values/(nrow(adult)*ncol(adult))
+cat_vars <- adult %>% select_if(is.character) %>% colnames()
+encode<-function(x){
+  factor(x)%>%as.numeric()
+  }
+adult[,cat_vars] <- apply(adult[,cat_vars],2,encode)
+adult_test[,cat_vars] <- apply(adult_test[,cat_vars],2,encode)
+
+```
+
+```{r}
+train_x <- adult[,-14]
+train_y <- adult[,14]
+test_x <- adult_test[,-14]
+test_y <- adult_test[,14]
+cat_index <- which( train_x %>% colnames() %in% cat_vars)
+complete_rows <- complete.cases(train_x) %>% which()
+initCtrs <- train_x[sample(complete_rows,2),] %>% unlist() %>% as.numeric()
+fit_train <- Parcial_km1215(m=train_x,k=2,initCtrs,nIters=100)
+```
+
+```{r}
+fit_train$fitted_value
+fit_train$fitted_value
+cat("train accuracy",test_accuraacy(unlist(train_y),fit_train$fitted_value))
+fit_train$fitted_Centroid[,cat_index] <- round(fit_train$fitted_Centroid[,cat_index], digits = 0)
+test_fit <- fitted.test(test_x,2,fit_train$fitted_Centroid)
+fit_test_y <- test_fit$fitted_values
+cat("test accuracy",test_accuraacy(unlist(test_y),fit_test_y))
+cat("mse",test_fit$ms_e)
+```
+
+
+
