@@ -56,9 +56,7 @@ updateCtrs <- function(m,ctrs,members,k,initC){
   ##calculate the new centroid
   for (i in 1:k){
     m_i<-matrix(m[which(members==i),]%>%unlist(),ncol = ncol(m))
-    print(c("i:",i))
     for(j in 1:ncol(m_i)){
-      print(c("j:",j))
       m_ij <- m_i[,j]
       intactCol <- !is.na(m_ij)# find intact column index of m_i
       if (all(intactCol==FALSE)){
