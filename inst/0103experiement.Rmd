@@ -1,0 +1,93 @@
+
+
+If the probability of being missing is the same for all cases, then the data are said to be missing completely at random (MCAR). This effectively implies that causes of the missing data are unrelated to the data.
+
+If the probability of being missing is the same only within groups defined by the observed data, then the data are missing at random (MAR).
+
+MNAR means that the probability of being missing varies for reasons that are unknown to us. 
+
+question: how to set cluster numbers match with trainig set
+## 20% missing
+```{r}
+library(ClusterR)
+IBS <- dietary_survey_IBS
+IBS$class <- factor(dietary_survey_IBS$class,labels =c(2,1)) %>% as.numeric()
+IBS20 <- as.data.frame(lapply(IBS, function(cc) cc[ sample(c(TRUE, NA), prob = c(0.8, 0.2), size = length(cc), replace = TRUE) ]))
+
+library(caret)
+set.seed(34)
+#using complete data to index because the missing values and NaN's not allowed
+trainIndex <- createDataPartition(IBS$class, p = .7,
+                                  list = FALSE,
+                                  times = 1)
+Train_IBS20 <- IBS20[ trainIndex,]
+Valid_IBS20 <- IBS20[-trainIndex,]
+initC <- apply(Train_IBS20,2, function(x){x[sample(complete.cases(x) %>% which(),2)]})
+initc <- as.data.frame(initC)[,1:42] %>% unlist() %>%as.numeric()
+
+partial_model <- Partial_km(Train_IBS20[,-43],2,initc,10)
+#manually change cluster sets
+IBS20_fitted <- factor(partial_model$fitted_value,labels = c(2,1))
+test_accuracy(Train_IBS20[,43],IBS20_fitted)
+
+```
+train accuracy of partial_km is 0.6892857
+```{r}
+library(ClustImpute)
+imput_model <- ClustImpute(Train_IBS20[,-43],nr_cluster=2)
+#imput_fitted <- factor(imput_model$clusters,labels = c(0,1))
+test_accuracy(Train_IBS20[,43],imput_model$clusters)
+```
+train accuracy of ClustImpute is 0.6964286
+
+# test 
+```{r}
+partial_test20 <- fitted.test(Valid_IBS20[,-43],2,partial_model$fitted_Centroid)
+test_cluster20 <- factor(partial_test20$fitted_values,labels = c(2,1))
+test_accuracy(Valid_IBS20[,43],test_cluster20)
+```
+test accuracy of partial_km is 0.6583333
+
+```{r}
+impute_test20 <- fitted.test(Valid_IBS20[,-43],2,imput_model$centroids[,-43])
+impute_cluster20 <- impute_test20$fitted_values
+test_accuracy(Valid_IBS20[,43],impute_cluster20)
+```
+test_accuracy of ClustImpute is 0.6583333
+
+
+#30% missing
+```{r}
+set.seed(34)
+IBS30 <- as.data.frame(lapply(IBS, function(cc) cc[ sample(c(TRUE, NA), prob = c(0.7, 0.3), size = length(cc), replace = TRUE) ]))
+Train_IBS30 <- IBS30[ trainIndex,]
+Valid_IBS30 <- IBS30[-trainIndex,]
+initC <- apply(Train_IBS30,2, function(x){x[sample(complete.cases(x) %>% which(),2)]})
+initc <- as.data.frame(initC)[,1:42] %>% unlist() %>%as.numeric()
+
+partial_model30 <- Partial_km(Train_IBS30[,-43],2,initc,10)
+IBS30_fitted <- factor(partial_model30$fitted_value,labels = c(2,1))
+test_accuracy(Train_IBS30[,43],IBS30_fitted)
+```
+train accuracy of partial_km is 0.675
+
+```{r}
+imput_model30 <- ClustImpute(Train_IBS30[,-43],nr_cluster=2)
+imput_fitted30 <- factor(imput_model30$clusters,labels = c(2,1))
+test_accuracy(Train_IBS30[,43],imput_fitted30)
+```
+train accuracy of ClustImpute is 0.575
+
+#test
+```{r}
+partial_test30 <- fitted.test(Valid_IBS30[,-43],2,partial_model30$fitted_Centroid)
+test_accuracy(Valid_IBS30[,43],factor(partial_test30$fitted_values,labels = c(2,1)))
+```
+test accuracy of partial_km is 0.5666667
+
+```{r}
+impute_test30 <- fitted.test(Valid_IBS30[,-43],2,imput_model30$centroids[,-43])
+test_accuracy(Valid_IBS30[,43],factor(impute_test30$fitted_values,labels = c(2,1)))
+```
+test accuracy of ClustImpute is 0.5333333
+
