@@ -16,5 +16,5 @@ fitted.test<-function(testset,k,initC){
   #         ss_d[,j] = apply(testset,1,function(x){sum(x[which(!is.na(x))]-initC[j,][which(!is.na(x))])^2})
   #         }
   
-  return(list(ms_e = sum(ss_e)/(nrow_t*ncol_t), fitted_values = members))
+  return(list(ms_e = sum(ss_e)/(nrow_t*k), fitted_values = members))
 }
