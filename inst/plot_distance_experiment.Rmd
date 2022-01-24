@@ -1,0 +1,37 @@
+---
+title: "pot_distance"
+author: "WENXI ZHANG"
+date: "1/23/2022"
+output: html_document
+---
+
+```{r}
+library(palmerpenguins)
+library(dplyr)
+library(ggplot2)
+##rearrange data
+penguins[,c(1:2,7:8)]<-apply(penguins[,c(1:2,7:8)],2,function(x){as.numeric(as.factor(x))})
+
+km_model <- Partial_km(m=penguins[,-1],k=3,initCtrs=cbind(penguins[5,-1],penguins[150,-1],penguins[200,-1])%>%as.numeric(),nIters=100)
+#density plot looks dad
+plot_distance(km_model,penguins[,-1],plot_type="density")$plot
+#try histogram
+plot_distance(km_model,penguins[,-1],plot_type="histogram")$plot
+```
+```{r}
+house.votes <- read.csv("~/Desktop/research/research/house-votes-84.data", header=FALSE, na.strings="?",stringsAsFactors =TRUE)
+encode<-function(x){
+  factor(x,levels = c('n', 'y'),labels = c(1, 2))%>%as.numeric()
+}
+#x variables
+house_votes<-apply(house.votes[2:17],2,encode)
+#y var
+votes_y<-factor(house.votes[,1])%>%as.numeric()
+initc <- gen_initC(house_votes,2)
+partial_model <- Partial_km(house_votes,2,initc,100)
+
+plot_distance(partial_model,house_votes,plot_type="density")$plot
+```
+
+
+overall trend: as number of nas increase, distance tend to decrease.
