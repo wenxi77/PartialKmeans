@@ -1,5 +1,5 @@
-Package: PartialKmeans
-Version: 0.2
+Package: Partialkmeans
+Version: 1.0
 Title: partial_kmeans
 Author: Wenxi Zhang <wexzhang@ucdavis.edu>
 Maintainer: Wenxi Zhang <wexzhang@ucdavis.edu>
