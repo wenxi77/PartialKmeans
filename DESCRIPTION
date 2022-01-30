@@ -1,0 +1,7 @@
+Package: partial_kmeans
+Version: 0.1
+Date: 2022-01-27
+Title: partial_kmeans with missing data
+Description: This K-means algorithm is designed to handle data with missing values
+Author: Wenxi Zhang <wexzhang@ucdavis.edu>
+Maintainer: Karl W Broman <wexzhang@ucdavis.edu>
