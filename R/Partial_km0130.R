@@ -1,15 +1,27 @@
+#' K-means clustering with missing values
+#'
+#' 
+#' @param m input data, with the form of matrix, only numeric values or NAs. No whole NA rows or columns
+#' @param k Number of clusters
+#' @param initCtrs the initial guesses; row i has the initial guess for cluster i;
+#' @param nIters number of iterations user specified
+#'
+#' @return
+#' \describe{
+#'   \item{fitted_value}{membership of each row of m}
+#'   \item{fitted_Centroid}{the coordinates of the centroids of all clusters}
+#'   \item{distance}{distance matrix of each row to each centroids}
+#' }
 
-# arguments:
-#   m: input data, with the form of matrix. No whole NA rows or columns
-#   k:  the number of clusters
-#   initCtrs: the initial guesses; row i has the initial guess for cluster i;
-#   nIters: number of iterations user specified
-
-# value:
-#   membership of each row of m
-
-
-
+#'#' K-means clustering with missing values
+#'
+#' 
+#' @param m input data, with the form of matrix, only numeric values or NAs. No whole NA rows or columns
+#' @param k Number of clusters
+#' @param initCtrs the initial guesses; row i has the initial guess for cluster i;
+#' @param nIters number of iterations user specified
+#'
+#' @export
 Partial_km0130 <- function(m,k,initCtrs,nIters){
   #init variables
   iter <- 0
@@ -72,12 +84,5 @@ updateCtrs <- function(m,ctrs,members,k,initC){
   }
   return(ctrs)
 }
-#   updateCtrs2 <- function(m,ctrs,members,k){
-#   for (i in 1:k){
-#         m_i<- m[which(members==i),]
-# 
-#         ctrs[i,] <- apply(m_i,2,function(x){sum(x[which(!is.na(x))])/sum(!is.na(x))})
-#   }
-#   return(ctrs)
-# }
+
 
