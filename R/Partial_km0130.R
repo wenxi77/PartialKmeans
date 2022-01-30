@@ -12,15 +12,6 @@
 #'   \item{fitted_Centroid}{the coordinates of the centroids of all clusters}
 #'   \item{distance}{distance matrix of each row to each centroids}
 #' }
-
-#'#' K-means clustering with missing values
-#'
-#' 
-#' @param m input data, with the form of matrix, only numeric values or NAs. No whole NA rows or columns
-#' @param k Number of clusters
-#' @param initCtrs the initial guesses; row i has the initial guess for cluster i;
-#' @param nIters number of iterations user specified
-#'
 #' @export
 Partial_km0130 <- function(m,k,initCtrs,nIters){
   #init variables
