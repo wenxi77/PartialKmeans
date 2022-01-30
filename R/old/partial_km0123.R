@@ -1,4 +1,4 @@
-Parcial_km<-function(m,k,initCentroids,nIters){
+Parcial_km0123<-function(m,k,initCentroids,nIters){
   iter <- 0
   initC<-matrix(initCentroids,byrow = TRUE,nrow=k)
   #creating temporary centroid
