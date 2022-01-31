@@ -1,3 +1,18 @@
+#' find the optimal number of clusters
+#' 
+#' @param num_k number of clusters 1:num_k user specify to test on
+#' @param train training set of input data, only numeric values or NAs
+#' @param test testing set of input data, only numeric values or NAs
+#' @return  
+#' \describe{
+#'   \item{error_df}{dataframe of number of clusters vs average distance from testing data to assigned centroid coordinates}
+#'   \item{p}{line plot of error_df}
+#'   
+#' }
+#' 
+#' }
+#' 
+#'@export
 optimal_k <- function(num_k,train,test){
   mse_df <- tibble(k=1:num_k)
   for (k in 1:num_k) {
