@@ -1,6 +1,12 @@
 # PartialKmeans
 
-
+This pakage utilizes a modified K-means algorithm to handle rows and columns with missing values.
+Details:
+1.Exclude data with complete missing rows and columns
+2. When calculating the sum squared error of each data point to the centroid, only consider the partial distance with entries with non-NA values
+3. Visualize the influence of the number of missing values for each observation by drawing density plots of the distance between the centroid and each observation
+4. Visualize the ability of finding optimal number of clusters by comparing average distance between each row and cluster centroids
+5. Test PartialKmeans' performance on data with different percentage of missing values. Details from "Partialkmeans/inst/0106experiement.Rmd"
 # Installation
 
 from github
