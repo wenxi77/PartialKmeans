@@ -1,4 +1,20 @@
-#plot_type: "histogram", "density"
+
+#' density, histogram plot
+#' 
+#'plot distance frequency of observations with different number of NAs
+#' 
+#' @param model instance of Partial_km function on training set
+#' @param x_data input data matrix, only numeric values or NAs
+#' @param plot_type user specify "histogram" or "density"
+#'
+#' @return  
+#' \describe{
+#'   \item{plot_df}{dataframe of number of NAs each row vs distance of each row to assigned cluster centroids}
+#'   \item{plot}{"histogram" or "density" plot}
+#'   
+#' }
+#' 
+#'@export
 plot_distance <- function(model,x_data,plot_type){
   library(dplyr)
   library(ggplot2)
