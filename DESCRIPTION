@@ -6,10 +6,10 @@ Maintainer: Wenxi Zhang <wexzhang@ucdavis.edu>
 License: GPL (>= 2)
 Description: Modify K-means algorithm to handle rows and columns with missing values
 Imports: 
-  dplyr
-  ggplot2
-  hrbrthemes
-  viridis
-  caret
-ClusterR
-devtools
+  dplyr,
+  ggplot2,
+  hrbrthemes,
+  viridis,
+  caret,
+  ClusterR,
+  devtools

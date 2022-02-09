@@ -1,12 +1,12 @@
 # PartialKmeans
 
 This pakage utilizes a modified K-means algorithm to handle rows and columns with missing values.
-Details:
-1.Exclude data with complete missing rows and columns
-2. When calculating the sum squared error of each data point to the centroid, only consider the partial distance with entries with non-NA values
-3. Visualize the influence of the number of missing values for each observation by drawing density plots of the distance between the centroid and each observation
-4. Visualize the ability of finding optimal number of clusters by comparing average distance between each row and cluster centroids
-5. Test PartialKmeans' performance on data with different percentage of missing values. Details from "Partialkmeans/inst/0106experiement.Rmd"
+Details:  
+1.Exclude data with complete missing rows and columns. 
+2. When calculating the sum squared error of each data point to the centroid, only consider the partial distance with entries with non-NA values. 
+3. Visualize the influence of the number of missing values for each observation by drawing density plots of the distance between the centroid and each observation. 
+4. Visualize the ability of finding optimal number of clusters by comparing average distance between each row and cluster centroids. 
+5. Test PartialKmeans' performance on data with different percentage of missing values. Details from "Partialkmeans/inst/0106experiement.Rmd". 
 # Installation
 
 from github
@@ -59,7 +59,7 @@ Valid_house <- gen_train_test(house.votes,78)$test
 
 ```{r}
 initc <- gen_initC(xdata=Train_house[,2:17],n_cluster=2)
-house_model <- Partial_km0130(m=Train_house[,2:17],k=2,initCentroids=initc,nIters=100)
+house_model <- Partial_km(m=Train_house[,2:17],k=2,initCentroids=initc,nIters=100)
 #manually specify cluster sets
 house_train_fitted <- factor(house_model$fitted_value,labels = c(2,1))
 test_accuracy(Train_house[,1],house_train_fitted)
@@ -95,4 +95,4 @@ find_best_k$error_df
 find_best_k$plot
 ```
 # <img src="man/figures/housevotes_optimal_k.png" width="1000" />
-Expect for k=1, we see that k=2 has the smallest erroe, which should be the correct number of clusters.
+Expect for k=1, we see that k=2 has the smallest error, which should be the correct number of clusters.
