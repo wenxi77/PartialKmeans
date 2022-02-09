@@ -11,5 +11,5 @@ Imports:
   hrbrthemes
   viridis
   caret
-ClusterR
-devtools
+  ClusterR
+  devtools
