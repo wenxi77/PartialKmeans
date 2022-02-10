@@ -16,6 +16,7 @@ Imports:
   
 Suggests:
   dplyr,
-  ClusterR
+  ClusterR,
+  palmerpenguins
 
   
