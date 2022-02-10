@@ -1,15 +1,22 @@
 Package: Partialkmeans
 Version: 1.0
 Title: Partialkmeans
-Author: Wenxi Zhang <wexzhang@ucdavis.edu>
-Maintainer: Wenxi Zhang <wexzhang@ucdavis.edu>
+Author: Wenxi Zhang <wexzhang@ucdavis.edu>,
+        Norm Matloff <matloff@cs.ucdavis.edu>
+Maintainer: Wenxi Zhang <wexzhang@ucdavis.edu>,
+            Norm Matloff <matloff@cs.ucdavis.edu>
+            
 License: GPL (>= 2)
 Description: Modify K-means algorithm to handle rows and columns with missing values
 Imports: 
-  dplyr,
   ggplot2,
   hrbrthemes,
   viridis,
-  caret,
+  caret
+  
+Suggests:
+  dplyr,
   ClusterR,
-  devtools
+  palmerpenguins
+
+  
