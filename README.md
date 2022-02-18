@@ -2,11 +2,8 @@
 
 This pakage utilizes a modified K-means algorithm to handle rows and columns with missing values.\
 Details:  \
-1.Exclude data with complete missing rows and columns. \
-2. When calculating the sum squared error of each data point to the centroid, only consider the partial distance with entries with non-NA values. \
-3. Visualize the influence of the number of missing values for each observation by drawing density plots of the distance between the centroid and each observation.\
-4. Visualize the ability of finding optimal number of clusters by comparing average distance between each row and cluster centroids. \
-5. Test PartialKmeans' performance on data with different percentage of missing values. Details from "Partialkmeans/inst/0106experiement.Rmd". 
+k-means clustering is a clustering method that aims to partition n observations into k clusters in which each observation belongs to the cluster with the nearest cluster centroid. However, the standard K-means algorithm fails to accomodate data with missing values. This modified k-means algorithm below takes missing values into account. When calculating the sum squared error of each data point to the centroid, we only consider the partial distance with entries with non-NA values. This innovation in the algorithm could be beneficial for large sparse datasets with missing values, especially for datasets of recommendation systems. \
+We also have test PartialKmeans' performance on data with different percentage of missing values. Details from "Partialkmeans/inst/0106experiement.Rmd". 
 # Installation
 
 from github
@@ -71,16 +68,22 @@ test_accuracy(Valid_house[,1],house_test_fitted)
 ```
 
 ## plot distance of observation with differnet number of NAs
+
+Visualize the influence of the number of missing values for each observation by drawing density plots of the distance between the centroid and each observation.
+
 ```{r}
 plot_distance(house_model,Train_house[,-1],plot_type="density")$plot
 ```
 # <img src="man/figures/houvotes_density.png" width="1000" />
+
+
 ```{r}
 plot_distance(house_model,Train_house[,-1],plot_type="histogram")$plot
 ```
 # <img src="man/figures/housevotes_histogram.png" width="1000" />
 
 ## find optimal number of clusters
+Visualize the ability of finding optimal number of clusters by comparing average distance between each row and cluster centroids.
 ```{r}
 find_best_k <- optimal_k(5,Train_house,Valid_house)
 find_best_k$error_df
