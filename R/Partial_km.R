@@ -20,7 +20,12 @@ Partial_km <- function(m,k,initCtrs,nIters){
   ncm <- ncol(m)
   rowsM <- 1:nrm
   colsM <- 1:ncm
-  # set the centroids to the user-specified initial value
+  
+  # randomly set the centroids if user does not specify initial value
+  if (missing(initCtrs)) {
+    initCtrs = gen_initC(m,k)
+  }
+  
   initC <- matrix(initCtrs,byrow = TRUE,nrow=k)
   temp_Ctrs <- matrix(0, nrow = k, ncol = ncm)
   d <- matrix(0, nrow = nrm, ncol = k)
@@ -58,7 +63,7 @@ getDistances <- function(m,ctrs,intactPlaces,d,rowsM,k){
 updateCtrs <- function(m,ctrs,members,k,initC){
   ##calculate the new centroid
   for (i in 1:k){
-    m_i<-matrix(m[which(members==i),]%>%unlist(),ncol = ncol(m))
+    m_i<-matrix(unlist(m[which(members==i),]),ncol = ncol(m))
     for(j in 1:ncol(m_i)){
       m_ij <- m_i[,j]
       intactCol <- !is.na(m_ij)# find intact column index of m_i
