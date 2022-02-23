@@ -3,8 +3,8 @@
 #' 
 #' @param m input data, with the form of matrix, only numeric values or NAs. No whole NA rows or columns
 #' @param k Number of clusters
-#' @param initCtrs the initial guesses; row i has the initial guess for cluster i;
-#' @param nIters number of iterations user specified
+#' @param initCtrs the initial guesses; row i has the initial guess for cluster i; randomly set the centroids if user does not specify initial value
+#' @param nIters number of iterations user specified, default 100
 #'
 #' @return
 #' \describe{
@@ -13,7 +13,7 @@
 #'   \item{distance}{distance matrix of each row to each centroids}
 #' }
 #' @export
-Partial_km <- function(m,k,initCtrs,nIters){
+Partial_km <- function(m,k,initCtrs,nIters=100){
   #init variables
   iter <- 0
   nrm <- nrow(m)
