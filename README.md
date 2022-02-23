@@ -109,4 +109,4 @@ find_best_k$error_df
 find_best_k$plot
 ```
 # <img src="man/figures/housevotes_optimal_k.png" width="1000" />
-Expect for k=1, we see that k=2 has the smallest error, which should be the correct number of clusters.
+We see that k=2 has the smallest error, which should be the correct number of clusters.
