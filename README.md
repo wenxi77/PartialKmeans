@@ -82,7 +82,7 @@ Visualize the influence of the number of missing values for each observation by 
 ```{r}
 plot_distance(house_model,Train_house[,-1],plot_type="density")$plot
 ```
-# <img src="man/figures/houvotes_density.png" width="1000" />
+# <img src="man/figures/housevotes_density.png" width="1000" />
 
 
 ```{r}
