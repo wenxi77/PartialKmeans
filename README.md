@@ -80,13 +80,13 @@ $fitted_Centroid
 Visualize the influence of the number of missing values for each observation by drawing density plots of the distance between the centroid and each observation.
 
 ```{r}
-plot_distance(house_model,Train_house[,-1],plot_type="density")$plot
+plot_distance(house_model,house.votes[,-1],plot_type="density")$plot
 ```
 # <img src="man/figures/housevotes_density.png" width="1000" />
 
 
 ```{r}
-plot_distance(house_model,Train_house[,-1],plot_type="histogram")$plot
+plot_distance(house_model,house.votes[,-1],plot_type="histogram")$plot
 ```
 # <img src="man/figures/housevotes_histogram.png" width="1000" />
 
