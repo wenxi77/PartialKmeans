@@ -1,9 +1,9 @@
 # PartialKmeans
 
-This pakage utilizes a modified K-means algorithm to handle rows and columns with missing values.\
+This pakage utilizes a modified K-means algorithm to handle data with missing values.\
 Details:  \
-k-means clustering is a clustering method that aims to partition n observations into k clusters in which each observation belongs to the cluster with the nearest cluster centroid. However, the standard K-means algorithm fails to accomodate data with missing values. This modified k-means algorithm below takes missing values into account. When calculating the sum squared error of each data point to the centroid, we only consider the partial distance with entries with non-NA values. This innovation in the algorithm could be beneficial for large sparse datasets with missing values, especially for datasets of recommendation systems. \
-We also have test PartialKmeans' performance on data with different percentage of missing values. Details from "Partialkmeans/inst/0106experiement.Rmd". 
+k-means clustering is a clustering method that aims to partition n observations into k clusters in which each observation belongs to the cluster with the nearest cluster centroid. However, the standard K-means algorithm fails to accomodate data with missing values. This modified k-means algorithm below takes missing values into account. When calculating the sum squared error of each data point to the centroid, we only consider the partial distance with entries with non-NA values. This innovation in the algorithm could be beneficial for large sparse datasets with missing values, especially for datasets of recommendation systems. 
+
 # Installation
 
 from github
@@ -11,7 +11,6 @@ from github
 install.packages("devtools")
 library(devtools)
 install_github("wenxi77/Partialkmeans")
-library(Partialkmeans)
 ```
 # examples
 
@@ -46,25 +45,34 @@ encode<-function(x){
 #x variables
 house_votes<-apply(HouseVotes84[2:17],2,encode)
 #y var
-votes_y<-factor(HouseVotes84[,1])%>%as.numeric()
+votes_y<-as.numeric(factor(HouseVotes84[,1]))
 house.votes <- cbind(votes_y,house_votes)
-#train test split
-Train_house <- gen_train_test(house.votes,seed=78)$train
-Valid_house <- gen_train_test(house.votes,78)$test
 ```
 ## initialize centroids & apply Partial_km
 
 ```{r}
-initc <- gen_initC(xdata=Train_house[,2:17],n_cluster=2)
-house_model <- Partial_km(m=Train_house[,2:17],k=2,initCentroids=initc,nIters=100)
-#manually specify cluster sets
-house_train_fitted <- factor(house_model$fitted_value,labels = c(2,1))
-test_accuracy(Train_house[,1],house_train_fitted)
-# accuracy=0.8892508
-house_test <- fitted.test(Valid_house[,-1],2,house_model$fitted_Centroid)
-house_test_fitted <- factor(house_test$fitted_values,labels = c(2,1))
-test_accuracy(Valid_house[,1],house_test_fitted)
-#accuracy=0.859375
+house_model <- Partial_km(house.votes[,2:17],k=2,initc,100)
+house_model
+$fitted_value
+  [1] 1 1 1 1 1 1 1 1 1 2 1 1 2 2 1 1 2 2 1 2 2 2 2 2 2 2 2 2 1 2 1 2 2 1 2 1 1 1 1 2 2 2 2 2 2 2 2 2
+ [49] 2 1 2 1 2 1 2 1 1 1 1 1 2 1 2 2 2 1 1 1 2 2 2 2 2 1 2 1 1 1 1 1 2 2 1 1 1 1 1 1 1 1 2 2 2 2 1 2
+ [97] 1 1 2 1 1 2 2 1 2 2 1 1 2 2 2 1 2 1 2 2 2 1 2 1 1 1 1 1 2 1 1 2 2 2 2 2 1 1 1 1 1 2 2 2 2 1 1 2
+[145] 2 2 1 2 1 2 1 1 2 2 1 1 1 2 1 2 1 1 1 1 1 2 1 2 1 2 2 1 2 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 1 2 1 1
+[193] 2 2 2 1 2 1 2 2 2 2 2 2 1 2 1 1 2 2 2 1 2 2 1 1 2 1 2 2 2 2 2 1 1 1 2 2 1 1 1 1 2 1 2 1 2 2 2 1
+[241] 1 2 1 2 2 2 2 1 1 2 1 1 2 1 2 2 1 1 2 2 2 2 2 2 2 2 1 2 2 2 2 2 2 1 1 1 1 1 1 1 2 1 1 1 2 2 2 2
+[289] 2 1 2 2 2 2 2 1 1 2 2 2 1 2 1 1 1 1 1 2 1 2 1 2 2 1 1 1 1 2 2 2 2 2 1 1 1 1 2 1 2 2 1 2 2 2 2 1
+[337] 2 2 2 1 1 2 2 1 2 1 1 1 2 1 2 1 2 1 2 2 1 1 2 1 2 1 2 1 1 1 2 2 2 1 2 2 1 1 1 1 2 1 1 1 2 2 1 2
+[385] 1 1 2 2 1 2 1 2 1 2 1 2 2 1 2 1 1 1 2 1 1 1 1 1 2 1 1 2 1 1 2 2 1 2 2 2 1 2 2 2 2 2 2 1 2 2 1 2
+[433] 1 1 1
+
+$fitted_Centroid
+         [,1]     [,2]     [,3]     [,4]     [,5]     [,6]     [,7]     [,8]     [,9]    [,10]
+[1,] 1.223881 1.559783 1.207071 1.849246 1.989848 1.940299 1.193878 1.109375 1.095960 1.502488
+[2,] 1.639640 1.453202 1.938053 1.035556 1.076233 1.372197 1.893333 1.969298 1.874419 1.506608
+        [,11]    [,12]    [,13]    [,14]    [,15]    [,16]
+[1,] 1.253886 1.804233 1.885417 1.974619 1.100000 1.645349
+[2,] 1.457014 1.088372 1.178899 1.253394 1.714286 1.993711
+
 ```
 
 ## plot distance of observation with differnet number of NAs
@@ -85,17 +93,20 @@ plot_distance(house_model,Train_house[,-1],plot_type="histogram")$plot
 ## find optimal number of clusters
 Visualize the ability of finding optimal number of clusters by comparing average distance between each row and cluster centroids.
 ```{r}
+
+#train test split with seed 78
+Train_house <- gen_train_test(house.votes,seed=78)$train
+Valid_house <- gen_train_test(house.votes,78)$test
 find_best_k <- optimal_k(5,Train_house,Valid_house)
 find_best_k$error_df
 # k error
-# 1	3.851661			
 # 2	5.478305			
-# 3	5.521935			
-# 4	5.758045			
-# 5	5.703366	
+# 3	5.511778			
+# 4	5.623268			
+# 5	5.726231
 ```
 ```{r}
 find_best_k$plot
 ```
 # <img src="man/figures/housevotes_optimal_k.png" width="1000" />
-Expect for k=1, we see that k=2 has the smallest error, which should be the correct number of clusters.
+We see that k=2 has the smallest error, which should be the correct number of clusters.
