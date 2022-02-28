@@ -10,12 +10,12 @@ from github
 ```{r}
 install.packages("devtools")
 library(devtools)
-install_github("wenxi77/Partialkmeans")
+install_github("wenxi77/PartialKmeans")
 ```
 # examples
 
 ```{r}
-library(Partialkmeans)
+library(PartialKmeans)
 #import required packages
 library(caret)
 library(ClusterR)
