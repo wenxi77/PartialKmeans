@@ -1,6 +1,6 @@
-Package: Partialkmeans
+Package: PartialKmeans
 Version: 2.0
-Title: Partialkmeans
+Title: PartialKmeans
 Author: Wenxi Zhang <zwenxi22@gmail.com>,
         Norman Matloff <matloff@cs.ucdavis.edu>
 Maintainer: Wenxi Zhang <zwenxi22@gmail.com>,
