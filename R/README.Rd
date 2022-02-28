@@ -5,8 +5,8 @@ Partial_km0130.R
 #' 
 #' @param m input data, with the form of matrix, only numeric values or NAs. No whole NA rows or columns
 #' @param k Number of clusters
-#' @param initCtrs the initial guesses; row i has the initial guess for cluster i;
-#' @param nIters number of iterations user specified
+#' @param initCtrs ramdonly selected initial guesses; row i has the initial guess for cluster i;
+#' @param nIters number of iterations user specified; default is 100
 #'
 #' @return
 #' \describe{
@@ -111,7 +111,7 @@ test_accuracy.R
 optimal_num_cluster.R
 #' find the optimal number of clusters
 #' 
-#' @param num_k number of clusters 1:num_k user specify to test on
+#' @param num_k number of clusters 2:num_k user specify to test on
 #' @param train training set of input data, only numeric values or NAs
 #' @param test testing set of input data, only numeric values or NAs
 #' @return  
