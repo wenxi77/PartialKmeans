@@ -11,8 +11,7 @@ Description: Modify K-means algorithm to handle rows and columns with missing va
 Imports: 
   ggplot2,
   hrbrthemes,
-  viridis,
-  caret
+  viridis
   
 Suggests:
   dplyr,
