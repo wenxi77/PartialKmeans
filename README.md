@@ -77,7 +77,7 @@ $fitted_Centroid
 
 ## plot distance of observation with differnet number of NAs
 
-Visualize the influence of the number of missing values for each observation by drawing density plots of the distance between the centroid and each observation.
+Visualize the influence of the number of missing values for each observation by drawing density plots of the distance between the centroid and each observation. All distances are categorized by the number of NAs in each observation.
 
 ```{r}
 plot_distance(house_model,house.votes[,-1],plot_type="density")$plot
