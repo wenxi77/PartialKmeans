@@ -37,7 +37,7 @@ Partial_km <- function(m,k,initCtrs,nIters=100){
       #row i of dists will be the distances to ctrs
       dists <- getDistances(m,initC,intactPlaces,d,rowsM,k)
       ##assign cluster number to each observation
-      members <- apply(dists,1,which.min)
+      members <- unlist(apply(dists,1,which.min))
       #update the current centroid
       temp_Ctrs <- updateCtrs(m,temp_Ctrs,members,k,initC)
       if(all(temp_Ctrs == initC)){
@@ -48,14 +48,15 @@ Partial_km <- function(m,k,initCtrs,nIters=100){
       }
       
     }
-  return(list(fitted_value=members,fitted_Centroid=temp_Ctrs,distance=dists))
+  return(list(fitted_values=members,fitted_Centroid=temp_Ctrs,distance=dists))
 }
 
 getDistances <- function(m,ctrs,intactPlaces,d,rowsM,k){
   for (j in 1:k)
   {
     for (i in rowsM){
-      d[i,j] = sum((m[i,] - ctrs[j,])[intactPlaces[[i]]]^2)
+      intact<-intactPlaces[[i]]
+      d[i,j] = sum((m[i,] - ctrs[j,])[intact]^2)/length(intact)
     }
   }
   return(d)
