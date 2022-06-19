@@ -10,12 +10,12 @@ from github
 ```{r}
 install.packages("devtools")
 library(devtools)
-install_github("wenxi77/Partialkmeans")
+install_github("wenxi77/PartialKmeans")
 ```
 # examples
 
 ```{r}
-library(Partialkmeans)
+library(PartialKmeans)
 #import required packages
 library(caret)
 library(ClusterR)
@@ -77,16 +77,16 @@ $fitted_Centroid
 
 ## plot distance of observation with differnet number of NAs
 
-Visualize the influence of the number of missing values for each observation by drawing density plots of the distance between the centroid and each observation.
+Visualize the influence of the number of missing values for each observation by drawing density plots of the distance between the centroid and each observation. All distances are categorized by the number of NAs in each observation.
 
 ```{r}
-plot_distance(house_model,Train_house[,-1],plot_type="density")$plot
+plot_distance(house_model,house.votes[,-1],plot_type="density")$plot
 ```
-# <img src="man/figures/houvotes_density.png" width="1000" />
+# <img src="man/figures/housevotes_density.png" width="1000" />
 
 
 ```{r}
-plot_distance(house_model,Train_house[,-1],plot_type="histogram")$plot
+plot_distance(house_model,house.votes[,-1],plot_type="histogram")$plot
 ```
 # <img src="man/figures/housevotes_histogram.png" width="1000" />
 
