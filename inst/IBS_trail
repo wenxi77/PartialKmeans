@@ -1,0 +1,230 @@
+#  complete data case
+
+
+library(ClusterR)
+library(caret)
+library(ClustImpute)
+IBS <- dietary_survey_IBS
+IBS$class <- factor(dietary_survey_IBS$class,labels =c(2,1)) %>% as.numeric()
+IBS
+
+
+## 10% missing
+### partial km
+
+set.seed(34)
+IBS10 <- as.data.frame(lapply(IBS, function(cc) cc[ sample(c(TRUE, NA), prob = c(0.9, 0.1), size = length(cc), replace = TRUE) ]))
+#set.seed(34)
+trainIndex <- createDataPartition(IBS$class, p = .7,
+                                  list = FALSE,
+                                  times = 1)
+Train_IBS10 <- IBS10[ trainIndex,]
+Valid_IBS10 <- IBS10[-trainIndex,]
+Train_IBS <- IBS[ trainIndex,]
+Valid_IBS <- IBS[-trainIndex,]
+initC <- apply(Train_IBS10,2, function(x){x[sample(complete.cases(x) %>% which(),2)]})
+initc <- as.data.frame(initC)[,1:42] %>% unlist() %>%as.numeric()
+
+partial_model <- Partial_km(Train_IBS10[,-43],2,initc,10)
+
+
+### ClustImpute
+imput_model10 <- ClustImpute(Train_IBS10[,-43],nr_cluster=2)
+
+# test 
+partial_test10 <- fitted.test(Valid_IBS10[,-43],2,partial_model$fitted_Centroid)
+test_cluster10 <- factor(partial_test10$fitted_values,labels = c(2,1))
+test_accuracy(Valid_IBS[,43],test_cluster10)
+#0.9416667
+
+impute_test10 <- fitted.test(Valid_IBS10[,-43],2,imput_model10$centroids[,-43])
+impute_cluster10 <- impute_test10$fitted_values
+test_accuracy(Valid_IBS[,43],impute_cluster10)
+#0.9416667
+
+
+## 20% missing
+set.seed(34)
+IBS20 <- as.data.frame(lapply(IBS, function(cc) cc[ sample(c(TRUE, NA), prob = c(0.8, 0.2), size = length(cc), replace = TRUE) ]))
+
+Train_IBS20 <- IBS20[ trainIndex,]
+Valid_IBS20 <- IBS20[-trainIndex,]
+initC <- apply(Train_IBS20,2, function(x){x[sample(complete.cases(x) %>% which(),2)]})
+initc <- as.data.frame(initC)[,1:42] %>% unlist() %>%as.numeric()
+
+partial_model <- Partial_km(Train_IBS20[,-43],2,initc,10)
+imput_model <- ClustImpute(Train_IBS20[,-43],nr_cluster=2)
+
+# test 
+partial_test20 <- fitted.test(Valid_IBS20[,-43],2,partial_model$fitted_Centroid)
+test_cluster20 <- factor(partial_test20$fitted_values,labels = c(2,1))
+test_accuracy(Valid_IBS[,43],test_cluster20)
+#0.925
+impute_test20 <- fitted.test(Valid_IBS20[,-43],2,imput_model$centroids[,-43])
+impute_cluster20 <- impute_test20$fitted_values
+test_accuracy(Valid_IBS[,43],impute_cluster20)
+#0.925
+
+#30% missing
+set.seed(34)
+IBS30 <- as.data.frame(lapply(IBS, function(cc) cc[ sample(c(TRUE, NA), prob = c(0.7, 0.3), size = length(cc), replace = TRUE) ]))
+Train_IBS30 <- IBS30[ trainIndex,]
+Valid_IBS30 <- IBS30[-trainIndex,]
+initC <- apply(Train_IBS30,2, function(x){x[sample(complete.cases(x) %>% which(),2)]})
+initc <- as.data.frame(initC)[,1:42] %>% unlist() %>%as.numeric()
+
+partial_model30 <- Partial_km(Train_IBS30[,-43],2,initc,10)
+imput_model30 <- ClustImpute(Train_IBS30[,-43],nr_cluster=2)
+
+#test
+partial_test30 <- fitted.test(Valid_IBS30[,-43],2,partial_model30$fitted_Centroid)
+test_accuracy(Valid_IBS[,43],factor(partial_test30$fitted_values,labels = c(2,1)))
+#0.9333333
+
+impute_test30 <- fitted.test(Valid_IBS30[,-43],2,imput_model30$centroids[,-43])
+test_accuracy(Valid_IBS[,43],impute_test30$fitted_values)
+#0.9333333
+
+## 40% missing
+
+### partial km
+IBS40 <- as.data.frame(lapply(IBS, function(cc) cc[ sample(c(TRUE, NA), prob = c(0.6, 0.4), size = length(cc), replace = TRUE) ]))
+set.seed(34)
+Train_IBS40 <- IBS40[ trainIndex,]
+Valid_IBS40 <- IBS40[-trainIndex,]
+initC <- apply(Train_IBS40,2, function(x){x[sample(complete.cases(x) %>% which(),2)]})
+initc <- as.data.frame(initC)[,1:42] %>% unlist() %>%as.numeric()
+
+partial_model40 <- Partial_km(Train_IBS40[,-43],2,initc,10)
+imput_model40 <- ClustImpute(Train_IBS40[,-43],nr_cluster=2)
+#test
+partial_test40 <- fitted.test(Valid_IBS40[,-43],2,partial_model40$fitted_Centroid)
+test_cluster40 <- factor(partial_test40$fitted_values,labels = c(2,1))
+#test with complete cases
+test_accuracy(Valid_IBS[,43],test_cluster40)
+#0.9166667
+IBS40_clusters <- factor(imput_model40$clusters,labels = c(2,1))
+1-test_accuracy(Train_IBS[,43],IBS40_clusters)
+#0.8392857
+
+
+## 50% missing
+
+### partial km
+IBS50 <- as.data.frame(lapply(IBS, function(cc) cc[ sample(c(TRUE, NA), prob = c(0.5, 0.5), size = length(cc), replace = TRUE) ]))
+set.seed(34)
+Train_IBS50 <- IBS50[ trainIndex,]
+Valid_IBS50 <- IBS50[-trainIndex,]
+initC <- apply(Train_IBS50,2, function(x){x[sample(complete.cases(x) %>% which(),2)]})
+initc <- as.data.frame(initC)[,1:42] %>% unlist() %>%as.numeric()
+
+partial_model50 <- Partial_km(Train_IBS50[,-43],2,initc,10)
+imput_model50 <- ClustImpute(Train_IBS50[,-43],nr_cluster=2)
+
+#test
+
+partial_test50 <- fitted.test(Valid_IBS50[,-43],2,partial_model50$fitted_Centroid)
+test_cluster50 <- factor(partial_test50$fitted_values,labels = c(2,1))
+test_accuracy(Valid_IBS[,43],test_cluster50)
+#0.8916667
+
+impute_test50 <- fitted.test(Valid_IBS50[,-43],2,imput_model50$centroids[,-43])
+impute_cluster50 <- factor(impute_test50$fitted_values,labels = c(2,1))
+test_accuracy(Valid_IBS[,43],impute_test50$fitted_values)
+#0.8
+
+## 60% missing
+
+### partial km
+IBS60 <- as.data.frame(lapply(IBS, function(cc) cc[ sample(c(TRUE, NA), prob = c(0.4, 0.6), size = length(cc), replace = TRUE) ]))
+set.seed(34)
+Train_IBS60 <- IBS60[ trainIndex,]
+Valid_IBS60 <- IBS60[-trainIndex,]
+initC <- apply(Train_IBS60,2, function(x){x[sample(complete.cases(x) %>% which(),2)]})
+initc <- as.data.frame(initC)[,1:42] %>% unlist() %>%as.numeric()
+
+partial_model60 <- Partial_km(Train_IBS60[,-43],2,initc,10)
+imput_model60 <- ClustImpute(Train_IBS60[,-43],nr_cluster=2)
+
+# test 
+partial_test60 <- fitted.test(Valid_IBS60[,-43],2,partial_model60$fitted_Centroid)
+test_cluster60 <- factor(partial_test60$fitted_values,labels = c(2,1))
+#test with complete cases
+test_accuracy(Valid_IBS[,43],test_cluster60)
+#0.8833333
+impute_test60 <- fitted.test(Valid_IBS60[,-43],2,imput_model60$centroids[,-43])
+impute_cluster60 <- factor(impute_test60$fitted_values,labels = c(2,1))
+test_accuracy(Valid_IBS[,43],impute_test60$fitted_values)
+#0.8333333
+
+## 70% missing
+
+### partial km
+IBS70 <- as.data.frame(lapply(IBS, function(cc) cc[ sample(c(TRUE, NA), prob = c(0.3, 0.7), size = length(cc), replace = TRUE) ]))
+set.seed(34)
+Train_IBS70 <- IBS70[ trainIndex,]
+Valid_IBS70 <- IBS70[-trainIndex,]
+initC <- apply(Train_IBS70,2, function(x){x[sample(complete.cases(x) %>% which(),2)]})
+initc <- as.data.frame(initC)[,1:42] %>% unlist() %>%as.numeric()
+
+partial_model70 <- Partial_km(Train_IBS70[,-43],2,initc,10)
+imput_model70 <- ClustImpute(Train_IBS70[,-43],nr_cluster=2)
+
+#test
+partial_test70 <- fitted.test(Valid_IBS70[,-43],2,partial_model70$fitted_Centroid)
+test_cluster70 <- factor(partial_test70$fitted_values,labels = c(2,1))
+test_accuracy(Valid_IBS[,43],test_cluster70)
+#0.875
+impute_test70 <- fitted.test(Valid_IBS70[,-43],2,imput_model70$centroids[,-43])
+impute_cluster70 <- factor(impute_test70$fitted_values,labels = c(2,1))
+test_accuracy(Valid_IBS[,43],impute_test70$fitted_values)
+#0.7333333
+
+## 80% missing
+
+### partial km
+IBS80 <- as.data.frame(lapply(IBS, function(cc) cc[ sample(c(TRUE, NA), prob = c(0.2, 0.8), size = length(cc), replace = TRUE) ]))
+set.seed(34)
+Train_IBS80 <- IBS80[ trainIndex,]
+Valid_IBS80 <- IBS80[-trainIndex,]
+initC <- apply(Train_IBS80,2, function(x){x[sample(complete.cases(x) %>% which(),2)]})
+initc <- as.data.frame(initC)[,1:42] %>% unlist() %>%as.numeric()
+
+partial_model80 <- Partial_km(Train_IBS80[,-43],2,initc,10)
+imput_model80 <- ClustImpute(Train_IBS80[,-43],nr_cluster=2)
+
+# test 
+partial_test80 <- fitted.test(Valid_IBS80[,-43],2,partial_model80$fitted_Centroid)
+test_cluster80 <- factor(partial_test80$fitted_values,labels = c(2,1))
+test_accuracy(Valid_IBS[,43],test_cluster80)
+#0.8416667
+impute_test80 <- fitted.test(Valid_IBS70[,-43],2,imput_model80$centroids[,-43])
+impute_cluster80 <- factor(impute_test80$fitted_values,labels = c(2,1))
+test_accuracy(Valid_IBS[,43],impute_cluster80)
+#0.7666667
+
+## 90% missing
+
+### partial km
+set.seed(34)
+IBS90 <- as.data.frame(lapply(IBS, function(cc) cc[ sample(c(TRUE, NA), prob = c(0.1, 0.9), size = length(cc), replace = TRUE) ]))
+set.seed(34)
+Train_IBS90 <- IBS90[ trainIndex,]
+Valid_IBS90 <- IBS90[-trainIndex,]
+initC <- apply(Train_IBS90,2, function(x){x[sample(complete.cases(x) %>% which(),2)]})
+initc <- as.data.frame(initC)[,1:42] %>% unlist() %>%as.numeric()
+
+partial_model90 <- Partial_km(Train_IBS90[,-43],2,initc,10)
+imput_model90 <- ClustImpute(Train_IBS90[,-43],nr_cluster=2)
+
+#test
+partial_test90 <- fitted.test(Valid_IBS90[,-43],2,partial_model90$fitted_Centroid)
+test_cluster90 <- factor(partial_test90$fitted_values,labels = c(2,1))
+#test with complete cases
+test_accuracy(Valid_IBS[,43],test_cluster90)
+#0.7731092
+
+impute_test90 <- fitted.test(Valid_IBS90[,-43],2,imput_model90$centroids[,-43])
+impute_cluster90 <- factor(impute_test90$fitted_values,labels = c(2,1))
+test_accuracy(Valid_IBS[,43],impute_cluster90)
+#0.6722689
