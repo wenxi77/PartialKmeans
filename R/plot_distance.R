@@ -15,13 +15,13 @@
 #' }
 #' 
 #'@export
-plot_distance <- function(model,x_data,plot_type){
+plot_distance <- function(model,x_data,plot_type='density'){
   library(ggplot2)
   library(hrbrthemes)
   library(viridis)
   dis_per_row <- apply(model$distance,1,function(x){x[which.min(x)]})#get the smallest dis for each row
   na_per_row <- apply(x_data,1,function(x){sum((is.na(x)))})
-  na_dis_per_row <- tibble(num_na=factor(na_per_row),dis_per_row)
+  na_dis_per_row <- dplyr::tibble(num_na=factor(na_per_row),dis_per_row)
   if (plot_type=="histogram"){
     p <- ggplot(na_dis_per_row, aes(x=dis_per_row, fill=num_na)) +
       geom_histogram( color="#e9ecef", alpha=0.6, position = 'identity') +

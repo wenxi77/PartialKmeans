@@ -1,0 +1,9 @@
+
+import('ggplot2') 
+import ('hrbrthemes')
+import ('viridis')
+
+export(
+   Partial_km, plot_distance
+)
+

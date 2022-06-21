@@ -7,5 +7,5 @@ Maintainer: Wenxi Zhang <zwenxi22@gmail.com>,
             Norman Matloff <matloff@cs.ucdavis.edu>
 License: GPL (>= 2)
 Description: Modify K-means algorithm to handle rows and columns with missing values
-Imports: ggplot2, hrbrthemes, viridis
-Suggests: dplyr, ClusterR, palmerpenguins
+Imports: ggplot2, hrbrthemes, viridis,dplyr
+Suggests: ClusterR, palmerpenguins
