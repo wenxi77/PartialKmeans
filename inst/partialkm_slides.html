@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Partial Kmeans</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Wenxi Zhang and Norman Matloff" />
+    <script src="libs/header-attrs-2.14/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/useR.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/useR-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Partial Kmeans
+]
+.subtitle[
+## ⚔<br/>with xaringan
+]
+.author[
+### Wenxi Zhang and Norman Matloff
+]
+
+---
+
+
+
+# What is k-means clustering
+
+- K-means clustering is a type of unsupervised learning.
+- Partition n observations into k clusters in which each observation belongs to the cluster with the nearest cluster centroid.
+
+- What to do with missing data? 
+
+---
+## House votes dataset
+
+This data set includes votes for each of the U.S. House of Representatives Congresspeople on the 16 key votes. Different types of votes are simplified to yes(y), no(n), and unknown(NA).
+
+
+```
+##     V2 V3 V4   V5   V6 V7 V8 V9 V10
+## 1    n  y  n    y    y  y  n  n   n
+## 2    n  y  n    y    y  y  n  n   n
+## 3 &lt;NA&gt;  y  y &lt;NA&gt;    y  y  n  n   n
+## 4    n  y  y    n &lt;NA&gt;  y  n  n   n
+## 5    y  y  y    n    y  y  n  n   n
+## 6    n  y  y    n    y  y  n  n   n
+```
+
+```
+##   V11  V12  V13 V14 V15 V16  V17
+## 1   y &lt;NA&gt;    y   y   y   n    y
+## 2   n    n    y   y   y   n &lt;NA&gt;
+## 3   n    y    n   y   y   n    n
+## 4   n    y    n   y   n   n    y
+## 5   n    y &lt;NA&gt;   y   y   y    y
+## 6   n    n    n   y   y   y    y
+```
+
+---
+
+- Pretend we have no information on parties
+- Let's try k=2 for demonstration
+- See if we can predict the correct group
+
+
+
+```r
+Train_house &lt;- PartialKmeans::gen_train_test(house.votes,seed=78)$train
+Valid_house &lt;- PartialKmeans::gen_train_test(house.votes,78)$test
+house_model &lt;- PartialKmeans::Partial_km(m = Train_house[,2:17],k = 2,nIters = 100)
+house_test &lt;- PartialKmeans::fitted.test(Valid_house[,-1],2,house_model$fitted_Centroid)
+house_test_fitted &lt;- factor(house_test$fitted_values,labels = c(2,1))
+Valid_house[,1][1:30]
+```
+
+```
+##  [1] 1 1 2 1 1 1 2 1 2 2 1 1 1 1 1 2 2 2 1 1 1 2 2 1 1 1 1 1 1 1
+```
+
+```r
+house_test_fitted[1:30]
+```
+
+```
+##  [1] 2 2 2 1 1 1 2 1 2 2 1 1 1 1 1 2 2 2 1 1 1 2 2 1 1 2 2 2 2 1
+## Levels: 2 1
+```
+
+```r
+PartialKmeans::test_accuracy(Valid_house[,1],house_test_fitted)
+```
+
+```
+## [1] 0.71875
+```
+
+
+---
+## Why PartialKmeans
+- a easy remedy for datasets of missing values 
+
+```r
+(example&lt;-matrix(c(2,4,NA,5,6,8,NA,5,8),nrow=3,byrow = TRUE))
+```
+
+```
+##      [,1] [,2] [,3]
+## [1,]    2    4   NA
+## [2,]    5    6    8
+## [3,]   NA    5    8
+```
+
+```r
+c1&lt;-c(2,3,4)
+c2&lt;-c(6,2,4)
+d11&lt;- ((2-2)^2+(4-3)^2)/2
+d12&lt;- ((2-6)^2+(4-2)^2)/2
+d21&lt;- ((5-2)^2+(6-3)^2+(8-4)^2)/3
+d22&lt;- ((5-6)^2+(6-2)^2+(8-4)^2)/3
+d31&lt;-((5-3)^2+(8-4)^2)/2
+d32&lt;- ((5-2)^2+(8-4)^2)/2
+```
+
+---
+
+
+```r
+(d&lt;-matrix(c(d11,d12,d21,d22,d31,d32),nrow=3,byrow = TRUE))
+```
+
+```
+##          [,1] [,2]
+## [1,]  0.50000 10.0
+## [2,] 11.33333 11.0
+## [3,] 10.00000 12.5
+```
+
+```r
+matrix(c(2,4,NA,NA,5,8),nrow=2,byrow = TRUE)
+```
+
+```
+##      [,1] [,2] [,3]
+## [1,]    2    4   NA
+## [2,]   NA    5    8
+```
+
+```r
+(newc1&lt;-c(2,(4+5)/2,8))
+```
+
+```
+## [1] 2.0 4.5 8.0
+```
+
+```r
+(newc2&lt;-c(5,6,8))
+```
+
+```
+## [1] 5 6 8
+```
+---
+ 
+
+Given a training set `\({x^{(1)}, ... , x^{(m)}}\)`  
+
+1. initialize cluster centroids `\(\mu_1,\mu_2...\mu_j \in R^n\)` randomly  
+2. Repeat until convergence/number of iterations usr defined  
+    for each i,  
+    `\(d_i=\frac{||(x_i-\mu_j)[intact\ index]||^2}{\#x_i[intact\ index]}\)`  
+    `\(c_{i}=\underset{j}{\arg\min}\ d_i^2\)`  
+    for each j,  
+    `\(\mu_j=\frac{\sum_{i=1}^{m}1\{c_i=j\}x_i[intact\ index]}{\sum_{i=1}^{m}1\{c_i=j\}\#x_i[intact\ index]}\)`
+
+
+
+
+
+
+---
+
+# some plots
+&lt;img src="partialkm_slides_files/figure-html/unnamed-chunk-6-1.png" width="450px" /&gt;
+---
+![](partialkm_slides_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+
+
+
+---
+### Performance comparison wrt %missing
+- ClustImpute
+- Synthetic data using a dietary survey of patients	with irritable bowel syndrome (IBS)
+
+- A data frame with 400 Instances and 43 attributes
+- Attributes are intake of a list of foods  
+---
+
+- Data has two groups: healthy-group vs. the IBS-patients  
+
+- Pretend we have no knowledge about the groups  
+
+- Given that we choose k = 2  
+
+- How well would PartialKmeans predict the correct group, relative to ClustImpute?  
+
+
+---
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Partialkmeans &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; ClustImpute &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 10%missing &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.9416667 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.9416667 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 20%missing &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.9250000 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.9250000 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 30%missing &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.9333333 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.9333333 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 40%missing &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.9166667 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.9000000 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 50%missing &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.8916667 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.8000000 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 60%missing &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.8833333 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.8333333 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 70%missing &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.8750000 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.7333333 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 80%missing &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.8416667 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.7083333 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 90%missing &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.7583333 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.6833333 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
