@@ -1,10 +1,10 @@
 #' K-means clustering with missing values
 #'
 #' 
-#' @param m input data, with the form of matrix, only numeric values or NAs. No whole NA rows or columns
+#' @param m Input data, with the form of matrix, only numeric values or NAs. No whole NA rows or columns
 #' @param k Number of clusters
-#' @param initCtrs the initial guesses; row i has the initial guess for cluster i; randomly set the centroids if user does not specify initial value
-#' @param nIters number of iterations user specified, default 100
+#' @param initCtrs The initial centroid guesses; row i has the initial guess for cluster i; randomly set the centroids if user does not specify initial value
+#' @param nIters Number of iterations user specified, default 100
 #'
 #' @return
 #' \describe{
