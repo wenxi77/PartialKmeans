@@ -32,7 +32,7 @@ Partial_km1 <- function(m,k,initCtrs,nIters=100){
 # NM, 6/25/22 outline
 
 #    1.  create R list intactNonNALocs, one element for each observed
-#    intactness pattern; e.g. if intactness[['3,8,22']] = 15,99, then
+#    intactness pattern; e.g. if intactness[['3,8,22']] = c(15,99), then
 #    rows 15 and 99 in the original data have elements 3, 8 and 22
 #    intact and all else NAs
 
@@ -47,10 +47,19 @@ splitByNALocs <- function(m)
    split(tmp[,1],tmp[,2])
 }
 
-#    2.  create R list, one element for each of 1:ncol(m), with element
+#    2.  from intactNonNALocs, create a list patternCounts, where e.g.
+#    patternCounts[['3,8,22']] would have subelements pattern =
+#    c(3,8,22) and count = length(intactNonNALocs[['3,8,22']])
+
+###    counts <- sapply(intactNonNALocs,length)
+###    intactDF <- data.frame(counts=counts)
+###    row.names(intactDF) <- names(intactNonNALocs)
+
+
+#    3.  create R list, one element for each of 1:ncol(m), with element
 #    i showing row numbers in m in which m[,] is intact
 
-#    3.  a 'while' loop to do the iterations; body of loop:
+#    4.  a 'while' loop to do the iterations; body of loop:
 
 #       a.  for each element in intactNonNALocs, use pdist() to find the
 #       distances of those rows to the centroids; this then gives the
