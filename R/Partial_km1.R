@@ -29,12 +29,10 @@ Partial_km1 <- function(m,k,initCtrs,nIters=100){
     initCtrs <- mcc[randomRowNumbers,]
   }
 
-# NM, 6/25/22 outline
-
-#    1.  create R list intactNonNALocs, one element for each observed
-#    intactness pattern; e.g. if intactness[['3,8,22']] = c(15,99), then
-#    rows 15 and 99 in the original data have elements 3, 8 and 22
-#    intact and all else NAs
+# for each possible intactness pattern, finds the rows in inData with
+# that pattern; output z is an R list; e.g. z[['1,3,18'] = c(12,200)
+# would mean that in rows 12 and 200, elements 1, 3 and 18 are intact
+# and the rest are NAs
 
 splitByNALocs <- function(inData) 
 {
@@ -46,18 +44,19 @@ splitByNALocs <- function(inData)
    split(tmp[,1],tmp[,2])
 }
 
-#    2.  from intactNonNALocs, create a list patternCounts, where e.g.
-#    patternCounts[['3,8,22']] would have subelements pattern =
-#    c(3,8,22) and count = length(intactNonNALocs[['3,8,22']])
+# intactNonNALocs is the output of splitByNALocs(); p is number of cols
+# in original data
+#
+# the call getBitVectors(intactNonNALocs,ncol(inData))
+# returns a matrix m; i-th row is a bit vector, element j being 1 or 0,
+# according to whether j appears in names(intactNonNALocs)[i]; row names
+# in the matrix will be the list element names in intactNonNALocs, i.e.
+# the different intactness patterns
+#
+# e.g. say p = 4 and m[3,] = c(0,1,1,0); then 2 and 3 appear in the 3rd
+# intactness pattern, while 1 and 4 do not
 
-###    counts <- sapply(intactNonNALocs,length)
-###    intactDF <- data.frame(counts=counts)
-###    row.names(intactDF) <- names(intactNonNALocs)
-
-# e.g. the call getBitVectors(intactNonNALocs,ncol(inData))
-# returns a matrix; i-th row is a bit vector, element j being 1 or 0,
-# according to whether j appears in names(intactNonNALocs)[i]
-getBitVectors <- function(patternNames,p)
+getBitVectors <- function(intactNonNALocs,p)
 {
 
    getBitVector <- function(intactPattern,p) 
@@ -75,6 +74,7 @@ getBitVectors <- function(patternNames,p)
 
 # returns list, indexed by i in 1:p, with element i; input is output of
 # getBitVectors()
+
 whichContainI <- function(bitVectors) 
 {
    p <- ncol(bitVectors)
@@ -88,9 +88,24 @@ whichContainI <- function(bitVectors)
    lapply(1:p,getHaveI)
 }
 
-# finally, for each pattern in names(intactNonNALocs), need to new class
-# memberships, using pdist(), then find the new centroid totals and
-# counts for each i in 1:p, and update the centroids 
+# inData is our original dataset; containI is the output of
+# whichContainI(); intactLocs is the output of intactLocs;
+# bitVecs is the output of getBitVectors()
+
+findClassMembers <- function(inData,containI,intactLocs,bitVecs) 
+{
+   require(pdist)
+
+   doOnePattern <- function(patt) 
+   {
+      rows <- intactLocs[[patt]]
+      cols <- which(bitVecs[patt,] == 1)
+   }
+}
+
+# finally, for each pattern in names(intactNonNALocs), need to find new
+# class memberships, using pdist(), then find the new centroid totals
+# and counts for each i in 1:p, and update the centroids 
 
 ## getCentroids <- function(ctrTots) 
 ## {
