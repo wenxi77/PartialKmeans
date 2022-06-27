@@ -36,14 +36,13 @@ Partial_km1 <- function(m,k,initCtrs,nIters=100){
 #    rows 15 and 99 in the original data have elements 3, 8 and 22
 #    intact and all else NAs
 
-splitByNALocs <- function(m) 
+splitByNALocs <- function(inData) 
 {
    nonNALocs <- function(rowNum) 
-       # sprintf('%s',which(!is.na(m[rowNum,])))
-       paste(which(!is.na(m[rowNum,])),collapse=',')
+       paste(which(!is.na(inData[rowNum,])),collapse=',')
    
-   tmp <- sapply(1:nrow(m),nonNALocs) 
-   tmp <- data.frame((1:nrow(m)),tmp)
+   tmp <- sapply(1:nrow(inData),nonNALocs) 
+   tmp <- data.frame((1:nrow(inData)),tmp)
    split(tmp[,1],tmp[,2])
 }
 
@@ -55,19 +54,48 @@ splitByNALocs <- function(m)
 ###    intactDF <- data.frame(counts=counts)
 ###    row.names(intactDF) <- names(intactNonNALocs)
 
+# e.g. the call getBitVectors(intactNonNALocs,ncol(inData))
+# returns a matrix; i-th row is a bit vector, element j being 1 or 0,
+# according to whether j appears in names(intactNonNALocs)[i]
+getBitVectors <- function(patternNames,p)
+{
 
-#    3.  create R list, one element for each of 1:ncol(m), with element
-#    i showing row numbers in m in which m[,] is intact
+   getBitVector <- function(intactPattern,p) 
+   {
+      tmp <- rep(0,p)
+      numPattern <- as.numeric(strsplit(intactPattern,',')[[1]])
+      tmp[numPattern] <- 1
+      tmp
+   }
 
-#    4.  a 'while' loop to do the iterations; body of loop:
+   tmp <- t(sapply(names(intactNonNALocs),getBitVector,p))
+   row.names(tmp) <- names(intactNonNALocs)
+   tmp
+}
 
-#       a.  for each element in intactNonNALocs, use pdist() to find the
-#       distances of those rows to the centroids; this then gives the
-#       new cluster memberships
+# returns list, indexed by i in 1:p, with element i; input is output of
+# getBitVectors()
+whichContainI <- function(bitVectors) 
+{
+   p <- ncol(bitVectors)
 
-#       b.  update the centroids:  for each i in 1:ncol(m), find the
-#       new totals for element i in each centroid, and divide by the
-#       number of terms in those totals
+   getHaveI <- function(i) 
+   {
+      tmp <- which(bitVectors[,i] == 1)
+      row.names(bitVectors)[tmp]
+   }
+
+   lapply(1:p,getHaveI)
+}
+
+# finally, for each pattern in names(intactNonNALocs), need to new class
+# memberships, using pdist(), then find the new centroid totals and
+# counts for each i in 1:p, and update the centroids 
+
+## getCentroids <- function(ctrTots) 
+## {
+## 
+## }
 
 
 ##   # NM removed, 6/23/22
