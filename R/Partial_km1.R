@@ -28,6 +28,7 @@ Partial_km1 <- function(m,k,initCtrs,nIters=100){
     randomRowNumbers <- sample(1:nrow(mcc),k)
     initCtrs <- mcc[randomRowNumbers,]
   }
+}
 
 # for each possible intactness pattern, finds the rows in inData with
 # that pattern; output z is an R list; e.g. z[['1,3,18'] = c(12,200)
@@ -42,6 +43,12 @@ splitByNALocs <- function(inData)
    tmp <- sapply(1:nrow(inData),nonNALocs) 
    tmp <- data.frame((1:nrow(inData)),tmp)
    split(tmp[,1],tmp[,2])
+}
+
+getNumPatterns <- function(intactLocs) 
+{
+   lapply(names(intactLocs),
+      function(patt) as.numeric(strsplit(patt,',')[[1]]))
 }
 
 # intactNonNALocs is the output of splitByNALocs(); p is number of cols
@@ -92,7 +99,7 @@ whichContainI <- function(bitVectors)
 # intactLocs; bitVecs is the output of getBitVectors(); ctrds is the
 # matrix of centroids, one centroid per row
 
-findClassMembers <- function(inData,intactLocs,bitVecs,ctrds) 
+findClusterMembers <- function(inData,intactLocs,bitVecs,ctrds) 
 {
    require(pdist)
 
@@ -110,7 +117,7 @@ findClassMembers <- function(inData,intactLocs,bitVecs,ctrds)
    tmp
 }
 
-# clusterMembers is the output from findClassMembers(); ctrds is the
+# clusterMembers is the output from findClusterMembers(); ctrds is the
 # centroids matrix
 
 updateCtrds <- function(clusterMembers,ctrds) 
