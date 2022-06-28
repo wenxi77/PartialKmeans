@@ -90,17 +90,25 @@ whichContainI <- function(bitVectors)
 
 # inData is our original dataset; containI is the output of
 # whichContainI(); intactLocs is the output of intactLocs;
-# bitVecs is the output of getBitVectors()
+# bitVecs is the output of getBitVectors(); ctrds is the matrix of
+# centroids, one centroid per row
 
-findClassMembers <- function(inData,containI,intactLocs,bitVecs) 
+findClassMembers <- function(inData,containI,intactLocs,bitVecs,ctrds) 
 {
    require(pdist)
 
-   doOnePattern <- function(patt) 
+   doOnePattern <- function(patt)  # e.g. patt = '3,8,9,21'
    {
       rows <- intactLocs[[patt]]
       cols <- which(bitVecs[patt,] == 1)
+      dists <- pdist(inData[rows,cols,drop=F],ctrds[,cols,drop=F])
+      dists <- as.matrix(dists)
+      apply(dists,1,which.min)
    }
+
+   tmp <- sapply(names(intactLocs),doOnePattern)
+   names(tmp) <- names(intactLocs)
+   tmp
 }
 
 # finally, for each pattern in names(intactNonNALocs), need to find new
