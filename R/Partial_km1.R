@@ -47,12 +47,15 @@ splitByNALocs <- function(inData)
 
 getNumPatterns <- function(intactLocs) 
 {
-   lapply(names(intactLocs),
+   tmp <- lapply(names(intactLocs),
       function(patt) as.numeric(strsplit(patt,',')[[1]]))
+   names(tmp) <- names(intactLocs)
+   tmp
 }
 
-# intactNonNALocs is the output of splitByNALocs(); p is number of cols
-# in original data
+# intactNonNALocs is the output of splitByNALocs(); 
+# numPatterns is the output of getNumPatterns()
+# p is number of cols # in original data
 #
 # the call getBitVectors(intactNonNALocs,ncol(inData))
 # returns a matrix m; i-th row is a bit vector, element j being 1 or 0,
@@ -63,19 +66,19 @@ getNumPatterns <- function(intactLocs)
 # e.g. say p = 4 and m[3,] = c(0,1,1,0); then 2 and 3 appear in the 3rd
 # intactness pattern, while 1 and 4 do not
 
-getBitVectors <- function(intactNonNALocs,p)
+getBitVectors <- function(intactLocs,numPatterns,p)
 {
 
    getBitVector <- function(intactPattern,p) 
    {
       tmp <- rep(0,p)
-      numPattern <- as.numeric(strsplit(intactPattern,',')[[1]])
-      tmp[numPattern] <- 1
+      numPatt <- numPatterns[[intactPattern]]
+      tmp[numPatt] <- 1
       tmp
    }
 
-   tmp <- t(sapply(names(intactNonNALocs),getBitVector,p))
-   row.names(tmp) <- names(intactNonNALocs)
+   tmp <- t(sapply(names(intactLocs),getBitVector,p))
+   row.names(tmp) <- names(intactLocs)
    tmp
 }
 
@@ -120,22 +123,30 @@ findClusterMembers <- function(inData,intactLocs,bitVecs,ctrds)
 # clusterMembers is the output from findClusterMembers(); ctrds is the
 # centroids matrix
 
-updateCtrds <- function(clusterMembers,ctrds) 
+updateCtrds <- function(intactLocs,clusterMembers,numPatterns,ctrds) 
 {
    ctrds[,] <- 0
+   counts <- ctrds  # how many terms went into each ctrd[i,j]
 
+   # loop through all possible intactness patterns
    for (i in 1:length(clusterMembers)) {
       patt <- names(clusterMembers)[i]
-      numPattern <- as.numeric(strsplit(patt,',')[[1]])
+      numPattern <- numPatterns[[patt]]
+      # which original data rows have this pattern?
       rows <- intactLocs[[patt]]
+      # process each row
       for (j in 1:length(rows)) {
          rw <- rows[j]
          contribToSum <- rw[numPattern]
          destCluster <- clusterMembers[[i]][j]
-         ctrd[destCluster,numPattern] <-
-            ctrd[destCluster,numPattern] + contribToSum
+         ctrds[destCluster,numPattern] <-
+            ctrds[destCluster,numPattern] + contribToSum
+         counts[destCluster,numPattern] <- 
+            counts[destCluster,numPattern] + 1
       }
    }
+
+   ctrds <- pmax(counts,1)
 
    ctrds
 }
