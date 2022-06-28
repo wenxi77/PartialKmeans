@@ -88,12 +88,11 @@ whichContainI <- function(bitVectors)
    lapply(1:p,getHaveI)
 }
 
-# inData is our original dataset; containI is the output of
-# whichContainI(); intactLocs is the output of intactLocs;
-# bitVecs is the output of getBitVectors(); ctrds is the matrix of
-# centroids, one centroid per row
+# inData is our original dataset; # intactLocs is the output of
+# intactLocs; bitVecs is the output of getBitVectors(); ctrds is the
+# matrix of centroids, one centroid per row
 
-findClassMembers <- function(inData,containI,intactLocs,bitVecs,ctrds) 
+findClassMembers <- function(inData,intactLocs,bitVecs,ctrds) 
 {
    require(pdist)
 
@@ -109,6 +108,29 @@ findClassMembers <- function(inData,containI,intactLocs,bitVecs,ctrds)
    tmp <- sapply(names(intactLocs),doOnePattern)
    names(tmp) <- names(intactLocs)
    tmp
+}
+
+# clusterMembers is the output from findClassMembers(); ctrds is the
+# centroids matrix
+
+updateCtrds <- function(clusterMembers,ctrds) 
+{
+   ctrds[,] <- 0
+
+   for (i in 1:length(clusterMembers)) {
+      patt <- names(clusterMembers)[i]
+      numPattern <- as.numeric(strsplit(patt,',')[[1]])
+      rows <- intactLocs[[patt]]
+      for (j in 1:length(rows)) {
+         rw <- rows[j]
+         contribToSum <- rw[numPattern]
+         destCluster <- clusterMembers[[i]][j]
+         ctrd[destCluster,numPattern] <-
+            ctrd[destCluster,numPattern] + contribToSum
+      }
+   }
+
+   ctrds
 }
 
 # finally, for each pattern in names(intactNonNALocs), need to find new
