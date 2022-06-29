@@ -28,6 +28,32 @@ Partial_km1 <- function(m,k,initCtrs,nIters=100){
     randomRowNumbers <- sample(1:nrow(mcc),k)
     initCtrs <- mcc[randomRowNumbers,]
   }
+
+  # the iterations
+
+   ctrds <- initCtrs
+   p <- ncol(m)
+   while(iter <= as.integer(nIters)) {
+      iter <- iter + 1
+
+      intactNonNALocs <- splitByNALocs(m)
+      numPatterns <- getNumPatterns(intactNonNALocs)
+      bvs <- getBitVectors(intactNonNALocs,numPatterns,p)
+      containI <- whichContainI(bvs)
+      clusterMembers <- findClusterMembers(m,intactNonNALocs,numPatterns,ctrds)
+      ctrds <- updateCtrds(m,intactNonNALocs,clusterMembers,numPatterns,ctrds)
+
+      # temp_Ctrs <- updateCtrs(m,temp_Ctrs,members,k,initC)
+#       if(all(temp_Ctrs == initC)){
+#         break
+#       }
+#       else{
+#         initC <- temp_Ctrs
+#       }
+    
+  }
+
+  ctrds
 }
 
 # for each possible intactness pattern, finds the rows in inData with
@@ -39,11 +65,13 @@ splitByNALocs <- function(inData)
 {
    nonNALocs <- function(rowNum) 
        paste(which(!is.na(inData[rowNum,])),collapse=',')
-   
    tmp <- sapply(1:nrow(inData),nonNALocs) 
    tmp <- data.frame((1:nrow(inData)),tmp)
    split(tmp[,1],tmp[,2])
 }
+
+# outputs list of correspondences between intactness patterns in string
+# and vector form, e.g. '1,3,8' and c(1,3,8)
 
 getNumPatterns <- function(intactLocs) 
 {
@@ -53,16 +81,18 @@ getNumPatterns <- function(intactLocs)
    tmp
 }
 
+# translates intactness patterns to vectors of 1s and 0s
+
 # intactNonNALocs is the output of splitByNALocs(); 
 # numPatterns is the output of getNumPatterns()
-# p is number of cols # in original data
-#
-# the call getBitVectors(intactNonNALocs,ncol(inData))
-# returns a matrix m; i-th row is a bit vector, element j being 1 or 0,
-# according to whether j appears in names(intactNonNALocs)[i]; row names
-# in the matrix will be the list element names in intactNonNALocs, i.e.
-# the different intactness patterns
-#
+# p is number of cols in original data
+
+# the call getBitVectors(intactNonNALocs,ncol(inData)) returns a matrix
+# m; i-th row is a bit vector, element j being 1 or 0, according to
+# whether j appears in names(intactNonNALocs)[i]; row names in the
+# matrix will be the list element names in intactNonNALocs, i.e.  the
+# different intactness patterns
+
 # e.g. say p = 4 and m[3,] = c(0,1,1,0); then 2 and 3 appear in the 3rd
 # intactness pattern, while 1 and 4 do not
 
@@ -82,8 +112,10 @@ getBitVectors <- function(intactLocs,numPatterns,p)
    tmp
 }
 
-# returns list, indexed by i in 1:p, with element i; input is output of
-# getBitVectors()
+# returns list, indexed by i in 1:p, indicating whether i is in an
+# intactness pattern or not
+
+# bitVectors is output of getBitVectors()
 
 whichContainI <- function(bitVectors) 
 {
@@ -98,18 +130,26 @@ whichContainI <- function(bitVectors)
    lapply(1:p,getHaveI)
 }
 
-# inData is our original dataset; # intactLocs is the output of
-# intactLocs; bitVecs is the output of getBitVectors(); ctrds is the
-# matrix of centroids, one centroid per row
+# finds the new cluster memberships for all input data, organized
+# according to intactness pattern
 
-findClusterMembers <- function(inData,intactLocs,bitVecs,ctrds) 
+# inData is our original dataset 
+# intactLocs is the output of splitByNALocs()
+# bitVecs is the output of getBitVectors() 
+# ctrds is the matrix of centroids, one centroid per row
+
+# findClusterMembers <- function(inData,intactLocs,bitVecs,ctrds) 
+findClusterMembers <- function(inData,intactLocs,numPatterns,ctrds) 
 {
-   require(pdist)
+   # fast function to find distances from a set of rows in one matrix to
+   # a set of rows in another matrix
+   require(pdist)  
 
    doOnePattern <- function(patt)  # e.g. patt = '3,8,9,21'
    {
       rows <- intactLocs[[patt]]
-      cols <- which(bitVecs[patt,] == 1)
+      # cols <- which(bitVecs[patt,] == 1)
+      cols <- numPatterns[[patt]]
       dists <- pdist(inData[rows,cols,drop=F],ctrds[,cols,drop=F])
       dists <- as.matrix(dists)
       apply(dists,1,which.min)
@@ -120,10 +160,13 @@ findClusterMembers <- function(inData,intactLocs,bitVecs,ctrds)
    tmp
 }
 
-# clusterMembers is the output from findClusterMembers(); ctrds is the
-# centroids matrix
+# inData is the original data
+# intactLocs is the output from splitByNALocs()
+# clusterMembers is the output from findClusterMembers() 
+# numPatterns is the output of getNumPatterns()
+# ctrds is the centroids matrix
 
-updateCtrds <- function(intactLocs,clusterMembers,numPatterns,ctrds) 
+updateCtrds <- function(inData,intactLocs,clusterMembers,numPatterns,ctrds) 
 {
    ctrds[,] <- 0
    counts <- ctrds  # how many terms went into each ctrd[i,j]
@@ -137,7 +180,7 @@ updateCtrds <- function(intactLocs,clusterMembers,numPatterns,ctrds)
       # process each row
       for (j in 1:length(rows)) {
          rw <- rows[j]
-         contribToSum <- rw[numPattern]
+         contribToSum <- inData[rw,numPattern]
          destCluster <- clusterMembers[[i]][j]
          ctrds[destCluster,numPattern] <-
             ctrds[destCluster,numPattern] + contribToSum
@@ -146,20 +189,10 @@ updateCtrds <- function(intactLocs,clusterMembers,numPatterns,ctrds)
       }
    }
 
-   ctrds <- pmax(counts,1)
+   ctrds <- ctrds / pmax(counts,1)
 
    ctrds
 }
-
-# finally, for each pattern in names(intactNonNALocs), need to find new
-# class memberships, using pdist(), then find the new centroid totals
-# and counts for each i in 1:p, and update the centroids 
-
-## getCentroids <- function(ctrTots) 
-## {
-## 
-## }
-
 
 ##   # NM removed, 6/23/22
 ##   # initC <- matrix(initCtrs,byrow = TRUE,nrow=k)
