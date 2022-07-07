@@ -7,10 +7,11 @@ k-means clustering is a clustering method that aims to partition n observations 
 # Installation
 
 from github
-```{r}
+``` r
 install.packages("devtools")
 library(devtools)
 install_github("wenxi77/PartialKmeans")
+
 ```
 # examples
 
@@ -24,26 +25,28 @@ library('mlbench')
 #get data samle
 data(HouseVotes84)
 head(HouseVotes84)
-#        Class   V1 V2 V3   V4   V5 V6 V7 V8 V9 V10  V11  V12
-# 1 republican    n  y  n    y    y  y  n  n  n   y <NA>    y
-# 2 republican    n  y  n    y    y  y  n  n  n   n    n    y
-# 3   democrat <NA>  y  y <NA>    y  y  n  n  n   n    y    n
-# 4   democrat    n  y  y    n <NA>  y  n  n  n   n    y    n
-# 5   democrat    y  y  y    n    y  y  n  n  n   n    y <NA>
-# 6   democrat    n  y  y    n    y  y  n  n  n   n    n    n
-#   V13 V14 V15  V16
-# 1   y   y   n    y
-# 2   y   y   n <NA>
-# 3   y   y   n    n
-# 4   y   n   n    y
-# 5   y   y   y    y
-# 6   y   y   y    y
+        Class   V1 V2 V3   V4   V5 V6 V7 V8 V9 V10  V11  V12
+ 1 republican    n  y  n    y    y  y  n  n  n   y <NA>    y
+ 2 republican    n  y  n    y    y  y  n  n  n   n    n    y
+ 3   democrat <NA>  y  y <NA>    y  y  n  n  n   n    y    n
+ 4   democrat    n  y  y    n <NA>  y  n  n  n   n    y    n
+ 5   democrat    y  y  y    n    y  y  n  n  n   n    y <NA>
+ 6   democrat    n  y  y    n    y  y  n  n  n   n    n    n
+   V13 V14 V15  V16
+ 1   y   y   n    y
+ 2   y   y   n <NA>
+ 3   y   y   n    n
+ 4   y   n   n    y
+ 5   y   y   y    y
+ 6   y   y   y    y
 #convert characters to numerical numbers
 encode<-function(x){
   factor(x,levels = c('n', 'y'),labels = c(1, 2))%>%as.numeric()
 }
 #x variables
 house_votes<-apply(HouseVotes84[2:17],2,encode)
+delrow<-which(apply(house_votes,1,function(row){all(is.na(row))}))
+house_votes<-house_votes[-delrow,]
 #y var
 votes_y<-as.numeric(factor(HouseVotes84[,1]))
 house.votes <- cbind(votes_y,house_votes)
@@ -90,23 +93,3 @@ plot_distance(house_model,house.votes[,-1],plot_type="histogram")$plot
 ```
 # <img src="man/figures/housevotes_histogram.png" width="1000" />
 
-## find optimal number of clusters
-Visualize the ability of finding optimal number of clusters by comparing average distance between each row and cluster centroids.
-```{r}
-
-#train test split with seed 78
-Train_house <- gen_train_test(house.votes,seed=78)$train
-Valid_house <- gen_train_test(house.votes,78)$test
-find_best_k <- optimal_k(5,Train_house,Valid_house)
-find_best_k$error_df
-# k error
-# 2	5.478305			
-# 3	5.511778			
-# 4	5.623268			
-# 5	5.726231
-```
-```{r}
-find_best_k$plot
-```
-# <img src="man/figures/housevotes_optimal_k.png" width="1000" />
-We see that k=2 has the smallest error, which should be the correct number of clusters.
