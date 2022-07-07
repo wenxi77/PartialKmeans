@@ -2,10 +2,10 @@
 \alias{plot_distance}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-density, histogram plot
+Density, Histogram plot
 }
 \description{
-density, histogram plot of the squared distance between the centroid and each row, categorized by the number of NAs in each row
+Density, histogram plot of the squared distance between the centroid and each row; Categorized by the number of NAs in each row
 }
 \usage{
 plot_distance(model, x_data, plot_type)
@@ -13,20 +13,20 @@ plot_distance(model, x_data, plot_type)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{model}{
-instance of Partial_km function on training set
+Instance of Partial_km function on training set
 }
   \item{x_data}{
-input data matrix, only numeric values or NAs
+Input data matrix, only numeric values or NAs
 }
   \item{plot_type}{
-user specify "histogram" or "density"
+User specify "histogram" or "density"
 }
 }
 
 \value{
 
 \describe{
-\item{plot_df}{dataframe of number of NAs each row vs distance of each row to assigned cluster centroids}
+\item{plot_df}{Dataframe of number of NAs each row vs distance of each row to assigned cluster centroids}
 \item{plot}{"histogram" or "density" plot}
 }
 }

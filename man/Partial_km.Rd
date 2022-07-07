@@ -13,22 +13,22 @@ Partial_km(m, k, initCtrs, nIters = 100)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{m}{
-input data, with the form of matrix, only numeric values or NAs. No whole NA rows or columns
+Input data, with the form of matrix, only numeric values or NAs. No whole NA rows or columns
 }
   \item{k}{
 Number of clusters
 }
   \item{initCtrs}{
-the initial guesses; row i has the initial guess for cluster i; randomly set the centroids if user does not specify initial value}
+The initial guesses; Row i has the initial guess for cluster i; randomly set the centroids if user does not specify initial value}
   \item{nIters}{
-number of iterations user specified, default 100
+Number of iterations user specified, default 100
 }
 }
 \value{
 \describe{
-\item{fitted_value}{membership of each row of m}
-\item{fitted_Centroid}{the fitted coordinates of the centroids of all clusters}
-\item{distance}{squared distance matrix of each row to each centroids}
+\item{fitted_value}{Membership of each row of m}
+\item{fitted_Centroid}{The fitted coordinates of the centroids of all clusters}
+\item{distance}{Squared distance matrix of each row to each centroids}
 }
 }
 
@@ -38,7 +38,7 @@ Wenxi Zhang; Norman Matloff
 
 
 
-\section{Warning}{if whole column of current group are all NAs, current centroid entry will be replaced with initial centroid
+\section{Warning}{If whole column of current group are all NAs, current centroid entry will be replaced with initial centroid
 }
 
 
