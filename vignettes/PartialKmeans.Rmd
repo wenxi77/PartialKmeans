@@ -4,6 +4,7 @@ author: "WENXI ZHANG"
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{PartialKmeans}
+  %\VignetteEncoding{UTF-8}
 output: rmarkdown::html_vignette
 ---
 
@@ -13,6 +14,9 @@ This pakage utilizes a modified K-means algorithm to handle data with missing va
 Details:  \
 k-means clustering is a clustering method that aims to partition n observations into k clusters in which each observation belongs to the cluster with the nearest cluster centroid. However, the standard K-means algorithm fails to accomodate data with missing values. This modified k-means algorithm below takes missing values into account. When calculating the sum squared error of each data point to the centroid, we only consider the partial distance with entries with non-NA values. This innovation in the algorithm could be beneficial for large sparse datasets with missing values, especially for datasets of recommendation systems. 
 
+``` {r, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
 # Installation
 
 from github
