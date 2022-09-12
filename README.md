@@ -21,7 +21,7 @@ library(PartialKmeans)
 library(caret)
 library(ClusterR)
 library(dplyr)
-library('mlbench')
+library(mlbench)
 #get data samle
 data(HouseVotes84)
 head(HouseVotes84)
