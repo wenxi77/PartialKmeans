@@ -23,6 +23,9 @@ library(ClusterR)
 library(dplyr)
 library(mlbench)
 #get data sample
+library(readr)
+HouseVotes84 <- read_csv("data/house-votes-84.data", 
+                          col_names = FALSE, na = "?")
 head(HouseVotes84)
         Class   V1 V2 V3   V4   V5 V6 V7 V8 V9 V10  V11  V12
  1 republican    n  y  n    y    y  y  n  n  n   y <NA>    y
